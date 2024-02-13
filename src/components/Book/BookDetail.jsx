@@ -8,25 +8,40 @@ const BookDetail = () => {
     const id =useParams().id;
 
     const [checked, setChecked] = useState(false)
-    console.log(id)
+    const history =useNavigate();
+    
     useEffect(()=> { 
         const fetchHandler =async()=>{
             await axios.get(`http://localhost:500/books/${id}`)
             .then((res)=>res.data)
+            .then((data)=>setInputs(data.book));
         }
-        fetchHandler().then((data)=>setInputs(data.book));
+        fetchHandler();
      },[id]);
+
+     const sendRequest =async()=>{
+      await axios.put(`http://localhost:5000/books/${id}`,{
+         name:String(inputs.name),
+         author:String(inputs.author),
+         description:String(inputs.description),
+         price:Number(inputs.price),
+         image:String(inputs.image),
+         available:Boolean(checked)
+     
+       }).then(res=>res.data)
+     }
 
      const handleSubmit=(e)=>{
         e.preventDefault();
+        sendRequest().then(()=>history('/books'))
      };
      const handleChange=(e)=>{
-        console.log(e)
+        
      };
 
   return (
     <div>
-         <form onSubmit={handleSubmit}>
+       {inputs &&  (  <form onSubmit={handleSubmit}>
     <Box display="flex" flex-direction='column' justifyContent={'center'} 
     maxWidth={700}
     alignContent={'center'}
@@ -50,6 +65,7 @@ const BookDetail = () => {
 <Button variant='contained' type='submit'>Update Book</Button>
 </Box>
   </form>
+)}
     </div>
   )
 }
